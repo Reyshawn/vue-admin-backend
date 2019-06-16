@@ -12,7 +12,7 @@ router.post('/register', (req, res, next) => {
   User.findOne({ email: email })
     .then(user => {
       if (user) {
-        res.send('Email is already registered')
+        res.status(400).send('😅 Email is already registered')
       } else {
         const newUser = new User({
           name,
@@ -40,12 +40,14 @@ router.post('/register', (req, res, next) => {
 router.post('/login', (req, res, next) => {
   console.log(req.body)
   passport.authenticate('local', (err, user, info) => {
+    console.log('err:', err)
     console.log('user:', user)
+    console.log('info:', info)
     if (err) {
       return next(err)
     }
     if (!user) {
-      return res.status(400).send("Cannot log in")
+      return res.status(400).send(info.message)
     }
     req.login(user, err => {
       res.send('Logged in')
