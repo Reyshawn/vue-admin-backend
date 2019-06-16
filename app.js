@@ -15,11 +15,19 @@ mongoose.connect(db, { useNewUrlParser: true })
   .catch(err => console.log(err))
 
 // Bodyparser
-app.use(express.urlencoded({ extended: false }))
+app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
 
 app.get('/', (req, res, next) => {
   res.send('Hello expre!')
 })
+
+// Passport middleware
+app.use(passport.initialize())
+app.use(passport.session())
+
+// Routes
+app.use('/api', require('./routes/index'))
 
 const PORT = process.env.PORT || 3000;
 
