@@ -39,7 +39,6 @@ router.post('/register', (req, res, next) => {
 
 // login
 router.post('/login', (req, res, next) => {
-  console.log(req.body)
   passport.authenticate('local', { session: false }, (err, user, info) => {
     if (err) {
       return next(err)
@@ -54,6 +53,7 @@ router.post('/login', (req, res, next) => {
       }
       // generate a signed json web token and return it
       jwt.sign({ email: user.email, password: user.password }, 'vue-admin-secret7412', (err, token) => {
+        res.cookie('access_token', token, { expires: new Date(Date.now() + 900000), httpOnly: true })
         return res.json({ email: user.email, token })
       })
     })
@@ -64,8 +64,9 @@ router.post('/login', (req, res, next) => {
 
 router.get('/logout', (req, res) => {
   req.logout();
+  res.clearCookie('access_token')
   console.log('Logged out')
-  return res.send()
+  return res.send('Logout succeeded.')
 })
 
 module.exports = router;
