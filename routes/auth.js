@@ -1,6 +1,7 @@
 const express = require('express')
 const bcrypt = require('bcryptjs')
 const passport = require('passport')
+const jwt = require('jsonwebtoken')
 const router = express.Router()
 
 // User model
@@ -39,18 +40,22 @@ router.post('/register', (req, res, next) => {
 // login
 router.post('/login', (req, res, next) => {
   console.log(req.body)
-  passport.authenticate('local', (err, user, info) => {
-    console.log('err:', err)
-    console.log('user:', user)
-    console.log('info:', info)
+  passport.authenticate('local', { session: false }, (err, user, info) => {
     if (err) {
       return next(err)
     }
     if (!user) {
-      return res.status(400).send(info.message)
+      return res.status(401).send(info.message)
     }
     req.login(user, err => {
-      res.send('Logged in')
+      if (err) {
+        console.log('Hi here ...')
+        res.send(err)
+      }
+      // generate a signed json web token and return it
+      jwt.sign({ email: user.email, password: user.password }, 'vue-admin-secret7412', (err, token) => {
+        return res.json({ email: user.email, token })
+      })
     })
   })(req, res, next);
 })

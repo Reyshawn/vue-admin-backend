@@ -18,16 +18,20 @@ mongoose.connect(db, { useNewUrlParser: true })
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
-app.get('/', (req, res, next) => {
-  res.send('Hello expre!')
-})
-
 // Passport middleware
 app.use(passport.initialize())
 app.use(passport.session())
 
 // Routes
-app.use('/api', require('./routes/index'))
+app.get('/', (req, res, next) => {
+  res.send('Hello expre!')
+})
+// test JWT authentication 
+app.post('/test', passport.authenticate('jwt', { session: false }), (req, res) => {
+  res.send(req.body)
+})
+
+app.use('/auth', require('./routes/auth'))
 
 const PORT = process.env.PORT || 3000;
 
