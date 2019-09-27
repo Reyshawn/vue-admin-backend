@@ -61,8 +61,12 @@ router.post('/login', (req, res, next) => {
 })
 
 router.get('/user', passport.authenticate('jwt', { session: false }), (req, res, next) => {
-  const { email } = req.query
-  console.log(email)
+  const token = req.headers.authorization.split(' ')[1]
+
+  // get payload from token
+  const payload = Buffer.from(token.split('.')[1], 'base64').toString('ascii')
+  const email = JSON.parse(payload).email
+
   User.findOne({ email })
     .then(user => {
       res.json({

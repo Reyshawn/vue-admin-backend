@@ -37,7 +37,6 @@ module.exports = (passport) => {
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       secretOrKey: 'vue-admin-secret7412'
     }, (jwtPayload, done) => {
-      console.log('jwtPayload:', jwtPayload)
       User.findOne({ email: jwtPayload.email })
         .then(user => {
           if (!user) {
