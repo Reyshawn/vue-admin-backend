@@ -60,6 +60,24 @@ router.post('/login', (req, res, next) => {
   })(req, res, next);
 })
 
+router.get('/user', passport.authenticate('jwt', { session: false }), (req, res, next) => {
+  const { email } = req.query
+  console.log(email)
+  User.findOne({ email })
+    .then(user => {
+      res.json({
+        name: user.name,
+        email: user.email,
+        avatar: user.avatar,
+        introduction: user.introduction,
+        roles: user.roles
+      })
+    })
+    .catch(err => {
+      console.log(err)
+    })
+})
+
 //logout
 
 router.get('/logout', (req, res) => {

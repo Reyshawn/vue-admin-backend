@@ -1,6 +1,6 @@
 const LocalStrategy = require('passport-local')
 const passportJWT = require('passport-jwt')
-const mongoose = require('mongoose')
+// const mongoose = require('mongoose')
 const bcrypt = require('bcryptjs')
 
 // Load User Model
@@ -15,7 +15,7 @@ module.exports = (passport) => {
       User.findOne({ email: email })
         .then(user => {
           if (!user) {
-            return done(null, false, { message: '😔 That email is not registered! '})
+            return done(null, false, { message: '😔 That email has been registered! '})
           }
 
           // Match password
