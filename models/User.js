@@ -18,6 +18,7 @@ const UserSchema = new mongoose.Schema({
   introduction: String,
   roles: {
     type: Array,
+    default: ['visitor'],
     required: true
   }
 })
