@@ -15,6 +15,15 @@ const UserSchema = new mongoose.Schema({
     default: Date.now
   },
   avatar: Buffer,
+  gender: {
+    type: String,
+    enum: ['male', 'female', 'unknown']
+  },
+  phone: String,
+  address: String,
+  homepage: String,
+  company: String,
+  education: String,
   introduction: String,
   roles: {
     type: Array,

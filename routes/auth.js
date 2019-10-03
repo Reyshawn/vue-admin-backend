@@ -7,6 +7,15 @@ const router = express.Router()
 // User model
 const User = require('../models/User')
 
+function extractEmail(req) {
+  let token = req.headers.authorization.split(' ')[1]
+
+  // get payload from token
+  let payload = Buffer.from(token.split('.')[1], 'base64').toString('ascii')
+  let email = JSON.parse(payload).email
+  return email
+}
+
 // register
 router.post('/register', (req, res, next) => {
   const { name, email, password } = req.body
@@ -60,26 +69,49 @@ router.post('/login', (req, res, next) => {
   })(req, res, next);
 })
 
-router.get('/user', passport.authenticate('jwt', { session: false }), (req, res, next) => {
-  const token = req.headers.authorization.split(' ')[1]
-
-  // get payload from token
-  const payload = Buffer.from(token.split('.')[1], 'base64').toString('ascii')
-  const email = JSON.parse(payload).email
-
-  User.findOne({ email })
-    .then(user => {
-      res.json({
-        name: user.name,
-        email: user.email,
-        avatar: user.avatar,
-        introduction: user.introduction,
-        roles: user.roles
-      })
+router.get('/user', passport.authenticate('jwt', { session: false }), async (req, res, next) => {
+  const email = extractEmail(req)
+  try {
+    const user = await User.findOne({ email })
+    res.json({
+      avatar: user.avatar,
+      roles: user.roles,
+      name: user.name,
+      email: user.email,
+      gender: user.gender,
+      phone: user.phone,
+      address: user.address,
+      homepage: user.homepage,
+      company: user.company,
+      education: user.education,
+      introduction: user.introduction
     })
-    .catch(err => {
-      console.log(err)
-    })
+  } catch (err) {
+    console.log(err)
+  }
+})
+
+router.post('/user', passport.authenticate('jwt', { session: false }),async (req, res, next) => {
+  const email = extractEmail(req)
+  const user = await User.findOne({ email })
+  const { name, gender, phone, address, homepage, company, education, introduction } = req.body
+  // console.log(req.body)
+  
+  try {
+    user.name = name
+    user.gender = gender
+    user.phone = phone
+    user.address = address
+    user.homepage = homepage
+    user.company = company
+    user.education = education
+    user.introduction = introduction
+    user.save()
+    res.send('Update success')
+  } catch (err) {
+    console.log(err)
+  }
+
 })
 
 //logout
