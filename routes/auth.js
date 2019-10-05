@@ -4,17 +4,10 @@ const passport = require('passport')
 const jwt = require('jsonwebtoken')
 const router = express.Router()
 
+const fs = require('fs')
+
 // User model
 const User = require('../models/User')
-
-function extractEmail(req) {
-  let token = req.headers.authorization.split(' ')[1]
-
-  // get payload from token
-  let payload = Buffer.from(token.split('.')[1], 'base64').toString('ascii')
-  let email = JSON.parse(payload).email
-  return email
-}
 
 // register
 router.post('/register', (req, res, next) => {
@@ -70,9 +63,8 @@ router.post('/login', (req, res, next) => {
 })
 
 router.get('/user', passport.authenticate('jwt', { session: false }), async (req, res, next) => {
-  const email = extractEmail(req)
   try {
-    const user = await User.findOne({ email })
+    const user = req.user
     res.json({
       avatar: user.avatar,
       roles: user.roles,
@@ -92,12 +84,17 @@ router.get('/user', passport.authenticate('jwt', { session: false }), async (req
 })
 
 router.post('/user', passport.authenticate('jwt', { session: false }),async (req, res, next) => {
-  const email = extractEmail(req)
-  const user = await User.findOne({ email })
-  const { name, gender, phone, address, homepage, company, education, introduction } = req.body
-  // console.log(req.body)
-  
+  const user = req.user
+  const { name, gender, phone, address, homepage, company, education, introduction, image } = req.body
   try {
+    if (req.file) {
+      //console.log(req.file)
+      //console.log(req.body)
+      let buffer = Buffer.from(image, 'base64')
+      user.avatar.data = buffer || user.avatar.data
+      user.avatar.contentType = 'image/png'
+    }
+
     user.name = name
     user.gender = gender
     user.phone = phone
@@ -111,7 +108,6 @@ router.post('/user', passport.authenticate('jwt', { session: false }),async (req
   } catch (err) {
     console.log(err)
   }
-
 })
 
 //logout

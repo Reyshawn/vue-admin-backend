@@ -3,6 +3,8 @@ const passport = require('passport')
 const mongoose = require('mongoose')
 const app = express()
 
+const multer  = require('multer')
+
 // Passport config
 require('./config/passport')(passport)
 
@@ -21,6 +23,13 @@ app.use(express.urlencoded({ extended: true }))
 // Passport middleware
 app.use(passport.initialize())
 app.use(passport.session())
+
+// multer
+
+const storage = multer.memoryStorage()
+
+const upload = multer({ storage: storage })
+app.use(upload.single('avatar'))
 
 // Routes
 app.get('/', (req, res, next) => {

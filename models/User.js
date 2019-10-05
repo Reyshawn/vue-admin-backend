@@ -14,7 +14,10 @@ const UserSchema = new mongoose.Schema({
     type: String,
     default: Date.now
   },
-  avatar: Buffer,
+  avatar: {
+    data: Buffer,
+    contentType: String
+  },
   gender: {
     type: String,
     enum: ['male', 'female', 'unknown']
