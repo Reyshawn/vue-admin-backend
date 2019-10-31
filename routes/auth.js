@@ -50,7 +50,7 @@ router.post('/login', (req, res, next) => {
     }
     req.login(user, err => {
       if (err) {
-        console.log('Hi here ...')
+        console.log('Login failed!')
         res.send(err)
       }
       // generate a signed json web token and return it
@@ -80,6 +80,7 @@ router.get('/user', passport.authenticate('jwt', { session: false }), async (req
     })
   } catch (err) {
     console.log(err)
+    console.log('Get user info failed!')
   }
 })
 
@@ -107,6 +108,21 @@ router.post('/user', passport.authenticate('jwt', { session: false }),async (req
     res.send('Update success')
   } catch (err) {
     console.log(err)
+  }
+})
+
+router.get('/users', passport.authenticate('jwt', { session: false }), async (req, res, next) => {
+  try {
+    const user = req.user
+    if (user.roles.includes('admin')) {
+      let docu = await User.find()
+      res.send(docu)
+    } else {
+      res.send('Sorry, this page only for admin user.')
+    }
+  } catch (err) {
+    console.log(err)
+    console.log('Can not get all users!')
   }
 })
 
